@@ -245,6 +245,9 @@ addToLibrary({
             // Fetch runtime WebSocket URL config.
             if (SOCKFS.websocketArgs['url']) {
               url = SOCKFS.websocketArgs['url'];
+              if (typeof url === 'function') {
+                url = url(addr, port);
+              }
             }
             // Fetch runtime WebSocket subprotocol config.
             if (SOCKFS.websocketArgs['subprotocol']) {
@@ -280,6 +283,12 @@ addToLibrary({
             {
               WebSocketConstructor = WebSocket;
             }
+#if expectToReceiveOnModule('websocket')
+            // Allow custom WebSocket constructor.
+            if (hasOwn(SOCKFS.websocketArgs, 'constructor')) {
+              WebSocketConstructor = SOCKFS.websocketArgs['constructor'];
+            }
+#endif
             ws = new WebSocketConstructor(url, opts);
             ws.binaryType = 'arraybuffer';
           } catch (e) {
